@@ -35,6 +35,7 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
 
     private HashMap<String, String> headerMap = new HashMap<>();
     private RNWebViewPackage aPackage;
+    private RNWebView mRNWebView;
 
     @VisibleForTesting
     public static final String REACT_CLASS = "RNWebViewAndroid";
@@ -46,17 +47,21 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
 
     @Override
     public RNWebView createViewInstance(ThemedReactContext context) {
-        RNWebView rnwv = new RNWebView(this, context);
+        mRNWebView = new RNWebView(this, context);
 
         // Fixes broken full-screen modals/galleries due to body
         // height being 0.
-        rnwv.setLayoutParams(
+        mRNWebView.setLayoutParams(
                 new LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.MATCH_PARENT));
         CookieManager.getInstance().setAcceptCookie(true); // add default cookie support
         CookieManager.getInstance().setAcceptFileSchemeCookies(true); // add default cookie support
 
-        return rnwv;
+        return mRNWebView;
+    }
+
+    public RNWebView getRNWebView() {
+        return mRNWebView;
     }
 
     public void setPackage(RNWebViewPackage aPackage) {

@@ -1,6 +1,9 @@
 package com.burnweb.rnwebview;
 
 import android.annotation.SuppressLint;
+
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
@@ -170,5 +173,26 @@ public class RNWebViewModule extends ReactContextBaseJavaModule implements Activ
     }
 
     public void onNewIntent(Intent intent) {}
+
+    @ReactMethod
+    public void evaluateJavascript(final String js, final Promise promise) {
+        final RNWebView webView = getPackage().getViewManager().getRNWebView();
+        if (webView != null) {
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    webView.evaluateJavascript(js, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            promise.resolve(value);
+                        }
+                    });
+                }
+            });
+        } else {
+            promise.reject(new Error("WebView not initialized"));
+        }
+
+    }
 
 }
