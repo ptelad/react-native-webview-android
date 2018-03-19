@@ -100,7 +100,14 @@ class RNWebView extends WebView implements LifecycleEventListener {
         this.getSettings().setLoadsImagesAutomatically(true);
         this.getSettings().setBlockNetworkImage(false);
         this.getSettings().setBlockNetworkLoads(false);
-        setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+        this.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        try {
+            Class<?> buildConfig = Class.forName(getContext().getPackageName() + ".BuildConfig");
+            Boolean debug = (Boolean) buildConfig.getField("DEBUG").get(null);
+            setWebContentsDebuggingEnabled(debug);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
