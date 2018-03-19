@@ -38,7 +38,11 @@ var WebViewAndroid = createClass({
   },
   _onMessage: function(event) {
     if (this.props.onMessage) {
-      this.props.onMessage(event.nativeEvent);
+      try {
+        this.props.onMessage({body: JSON.parse(event.nativeEvent.message)});
+      } catch (e) {
+        this.props.onMessage({body: event.nativeEvent.message});
+      }
     }
   },
   goBack: function() {
