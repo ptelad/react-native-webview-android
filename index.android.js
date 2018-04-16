@@ -88,7 +88,7 @@ var WebViewAndroid = createClass({
     );
   },
   evaluateJavaScript: function(js) {
-    return NativeModules.RNWebViewAndroidModule.evaluateJavascript(js);
+    return NativeModules.RNWebViewAndroidModule.evaluateJavascript(this._getWebViewHandle(), js);
   },
   render: function() {
     return (

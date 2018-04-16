@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -22,6 +23,9 @@ import android.webkit.WebChromeClient;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.uimanager.NativeViewHierarchyManager;
+import com.facebook.react.uimanager.UIBlock;
+import com.facebook.react.uimanager.UIManagerModule;
 
 public class RNWebViewModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -175,24 +179,25 @@ public class RNWebViewModule extends ReactContextBaseJavaModule implements Activ
     public void onNewIntent(Intent intent) {}
 
     @ReactMethod
-    public void evaluateJavascript(final String js, final Promise promise) {
-        final RNWebView webView = getPackage().getViewManager().getRNWebView();
-        if (webView != null) {
-            webView.post(new Runnable() {
-                @Override
-                public void run() {
-                    webView.evaluateJavascript(js, new ValueCallback<String>() {
+    public void evaluateJavascript(final int viewId, final String js, final Promise promise) {
+        UIManagerModule uiManager = getReactApplicationContext().getNativeModule(UIManagerModule.class);
+        uiManager.addUIBlock(new UIBlock() {
+            @Override
+            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+                View view = nativeViewHierarchyManager.resolveView(viewId);
+                if (view instanceof RNWebView) {
+                    RNWebView rnWebView = (RNWebView) view;
+                    rnWebView.evaluateJavascript(js, new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String value) {
                             promise.resolve(value);
                         }
                     });
+                } else {
+                    promise.reject("RNWebView", "Unexpected view type");
                 }
-            });
-        } else {
-            promise.reject(new Error("WebView not initialized"));
-        }
-
+            }
+        });
     }
 
 }
