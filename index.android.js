@@ -8,7 +8,7 @@ var RN = require("react-native");
 var createClass = require('create-react-class');
 var PropTypes = require('prop-types');
 
-var { requireNativeComponent, NativeModules } = require('react-native');
+var { requireNativeComponent, NativeModules, DeviceEventEmitter } = require('react-native');
 var RCTUIManager = NativeModules.UIManager;
 
 var WEBVIEW_REF = 'androidWebView';
@@ -36,12 +36,13 @@ var WebViewAndroid = createClass({
       this.props.onNavigationStateChange(event.nativeEvent);
     }
   },
-  _onMessage: function(event) {
+  _onMessage: function(msg) {
+    console.log('GOT MSG', msg);
     if (this.props.onMessage) {
       try {
-        this.props.onMessage({body: JSON.parse(event.nativeEvent.message)});
+        this.props.onMessage({body: JSON.parse(msg)});
       } catch (e) {
-        this.props.onMessage({body: event.nativeEvent.message});
+        this.props.onMessage({body: msg});
       }
     }
   },
@@ -90,13 +91,18 @@ var WebViewAndroid = createClass({
   evaluateJavaScript: function(js) {
     return NativeModules.RNWebViewAndroidModule.evaluateJavascript(this._getWebViewHandle(), js);
   },
+  componentWillMount: function() {
+    DeviceEventEmitter.addListener('JSMessageEvent', this._onMessage);
+  },
+  componentWillUnmount: function () {
+    DeviceEventEmitter.removeListener('JSMessageEvent', this._onMessage);
+  },
   render: function() {
     return (
       <RNWebViewAndroid 
         ref={WEBVIEW_REF} 
         {...this.props} 
         onNavigationStateChange={this._onNavigationStateChange} 
-        onMessageEvent={this._onMessage} 
       />
     );
   },

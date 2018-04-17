@@ -1,9 +1,8 @@
 package com.burnweb.rnwebview;
 
 import android.annotation.SuppressLint;
-
-import android.net.Uri;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -14,8 +13,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.facebook.react.common.SystemClock;
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.common.SystemClock;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.EventDispatcher;
@@ -24,6 +24,7 @@ class RNWebView extends WebView implements LifecycleEventListener {
 
     private final EventDispatcher mEventDispatcher;
     private final RNWebViewManager mViewManager;
+    private final DeviceEventManagerModule.RCTDeviceEventEmitter ee;
 
     private String charset = "UTF-8";
     private String baseUrl = "file:///";
@@ -88,6 +89,7 @@ class RNWebView extends WebView implements LifecycleEventListener {
 
         mViewManager = viewManager;
         mEventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
+        ee = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
 
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setBuiltInZoomControls(false);
@@ -187,7 +189,7 @@ class RNWebView extends WebView implements LifecycleEventListener {
     }
 
     @JavascriptInterface
-     public void postMessage(String jsParamaters) {
-        mEventDispatcher.dispatchEvent(new MessageEvent(getId(), jsParamaters));
+     public void postMessage(final String jsParamaters) {
+        ee.emit("JSMessageEvent", jsParamaters);
     }
 }
