@@ -37,7 +37,6 @@ var WebViewAndroid = createClass({
     }
   },
   _onMessage: function(msg) {
-    console.log('GOT MSG', msg);
     if (this.props.onMessage) {
       try {
         this.props.onMessage({body: JSON.parse(msg)});
