@@ -180,6 +180,11 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
         view.setInjectedJavaScript(injectedJavaScript);
     }
 
+    @ReactProp(name = "chromeInspect", defaultBoolean = false)
+    public void setChromeInspect(RNWebView view, boolean debug) {
+        view.setWebContentsDebuggingEnabled(debug);
+    }
+
     @Override
     public @Nullable Map<String, Integer> getCommandsMap() {
         return MapBuilder.of(
